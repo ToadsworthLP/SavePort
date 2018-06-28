@@ -38,7 +38,7 @@ namespace SavePort {
 
         public void AddUpdateListener(UnityAction action) {
             if (localMode) return;
-            container.OnValueUpdated.AddListener(action);
+            container.AddUpdateListener(action);
         }
 
         public void RemoveUpdateListener(UnityAction action) {

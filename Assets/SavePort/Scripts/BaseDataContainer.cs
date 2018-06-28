@@ -7,12 +7,11 @@ namespace SavePort {
     [Serializable]
     public abstract class UntypedDataContainer : ScriptableObject {
 
-        public abstract object UntypedValue { get; }
+        public abstract object UntypedValue { get; set; }
         public abstract Type ValueType { get; }
 
-        [SerializeField]
-        [HideInInspector]
-        public UnityEvent OnValueUpdated = new UnityEvent();
+        [NonSerialized]
+        protected UnityEvent OnValueUpdated = new UnityEvent();
 
         public void AddUpdateListener(UnityAction action) {
             OnValueUpdated.AddListener(action);
@@ -35,26 +34,29 @@ namespace SavePort {
     }
 
     [Serializable]
-    public abstract class BaseDataContainer<DataType> : UntypedDataContainer {
+    public abstract class BaseDataContainer<DataType> : UntypedDataContainer, ISerializationCallbackReceiver {
 
-        [SerializeField]
-        private DataType actualValue;
+        [SerializeField, Tooltip("The value which is saved to the container asset. Modifying it at runtime will update the runtime value as well.")]
+        private DataType serializedValue;
 
-        [SerializeField]
+        [NonSerialized]
+        private DataType runtimeValue;
+
+        [SerializeField, Tooltip("Whether the input is validated using the type-specific implementation of the Validate() function.")]
         private bool validateInput = true;
 
         public abstract DataType Validate(DataType input);
 
         public DataType Value {
             get {
-                return actualValue;
+                return runtimeValue;
             }
 
             set {
                 if (validateInput) {
-                    actualValue = value;
+                    runtimeValue = Validate(value);
                 } else {
-                    actualValue = Validate(value);
+                    runtimeValue = value;
                 }
                 InvokeUpdate();
             }
@@ -64,17 +66,22 @@ namespace SavePort {
         private DataType previousValue; //DON'T USE OUTSIDE THIS EDITOR ONLY PART
 
         private void OnValidate() {
-            if (validateInput && !actualValue.Equals(previousValue)) {
-                actualValue = Validate(actualValue);
+            if (validateInput && !serializedValue.Equals(previousValue)) {
+                serializedValue = Validate(serializedValue);
+                runtimeValue = serializedValue;
             }
 
-            previousValue = actualValue;
+            previousValue = serializedValue;
         }
 #endif
 
         public override object UntypedValue {
             get {
                 return (object)Value;
+            }
+
+            set {
+                Value = (DataType)value;
             }
         }
 
@@ -98,6 +105,11 @@ namespace SavePort {
             }
         }
 
+        public void OnBeforeSerialize() {}
+
+        public void OnAfterDeserialize() {
+            runtimeValue = serializedValue;
+        }
     }
 
 }
