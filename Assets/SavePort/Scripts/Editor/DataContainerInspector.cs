@@ -55,6 +55,8 @@ public class DataContainerInspector : Editor {
             foreach (ContainerTableEntry entry in config.GetContainerEntries()) {
                 if (entry.container.Equals(container)) {
                     config.GetContainerEntries().Remove(entry);
+                    EditorUtility.SetDirty(config);
+                    return;
                 }
             }
         } else {
@@ -65,6 +67,8 @@ public class DataContainerInspector : Editor {
             } else {
                 config.GetContainerEntries().Add(new ContainerTableEntry(container.name, container));
             }
+
+            EditorUtility.SetDirty(config);
         }
     }
 

@@ -11,4 +11,6 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: a78885cc40e3a504b87728e09e62375f, type: 3}
   m_Name: ExampleConfig
   m_EditorClassIdentifier: 
-  containerEntries: []
+  containerEntries:
+  - ID: HP
+    container: {fileID: 11400000, guid: 592fdc63f05bb9f439d104997560b800, type: 2}

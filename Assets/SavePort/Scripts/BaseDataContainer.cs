@@ -43,7 +43,7 @@ namespace SavePort {
         private DataType runtimeValue;
 
         [SerializeField, Tooltip("Whether the input is validated using the type-specific implementation of the Validate() function.")]
-        private bool validateInput = true;
+        private bool validateInput = false;
 
         public abstract DataType Validate(DataType input);
 

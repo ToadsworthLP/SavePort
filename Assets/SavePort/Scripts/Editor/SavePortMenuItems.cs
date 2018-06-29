@@ -11,12 +11,19 @@ public class SavePortMenuItems {
         if(configAssets == null) configAssets = SavePortEditorUtils.FindAllAssetsOfType<SaveConfiguration>();
 
         foreach (SaveConfiguration config in configAssets) {
+            List<ContainerTableEntry> emptyEntries = new List<ContainerTableEntry>();
+
             foreach (ContainerTableEntry entry in config.GetContainerEntries()) {
                 if (entry.container == null) {
-                    config.GetContainerEntries().Remove(entry);
-                    return;
+                    emptyEntries.Add(entry);
                 }
             }
+
+            foreach (ContainerTableEntry entry in emptyEntries) {
+                config.GetContainerEntries().Remove(entry);
+            }
+
+            EditorUtility.SetDirty(config);
         }
     }
 }
