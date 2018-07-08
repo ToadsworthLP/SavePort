@@ -2,6 +2,7 @@
 using System;
 using System.Collections.Generic;
 using System.IO;
+using System.Text;
 using UnityEngine;
 
 namespace SavePort.Saving {
@@ -32,8 +33,15 @@ namespace SavePort.Saving {
                         dataDict.Add(entry.ID, entry.container.UntypedValue);
                     }
 
-                    byte[] serializedData = SerializationUtility.SerializeValue(dataDict, DataFormat.Binary);
+                    List<UnityEngine.Object> unityObjects = new List<UnityEngine.Object>();
+                    byte[] serializedData = SerializationUtility.SerializeValue(dataDict, DataFormat.Binary, out unityObjects);
 
+                    string unityObjectJson = JsonUtility.ToJson(new UnityObjectList(unityObjects));
+                    byte[] unityObjectRefs = Encoding.ASCII.GetBytes(unityObjectJson);
+
+                    writer.Write((UInt32)unityObjectRefs.Length);
+                    writer.Write((UInt32)serializedData.Length);
+                    writer.Write(unityObjectRefs);
                     writer.Write(serializedData);
                 }
                 return true;
@@ -47,10 +55,18 @@ namespace SavePort.Saving {
         public static bool LoadContainers(string fileName) {
             try {
                 using (BinaryReader reader = new BinaryReader(File.Open(Application.persistentDataPath + "/" + fileName, FileMode.OpenOrCreate))) {
-                    byte[] serializedData = reader.ReadBytes((int)reader.BaseStream.Length);
-                    if (serializedData.Length == 0) return false;
+                    if (reader.BaseStream.Length == 0) return false;
 
-                    Dictionary<string, object> dataDict = SerializationUtility.DeserializeValue<Dictionary<string, object>>(serializedData, DataFormat.Binary);
+                    UInt32 unityObjectLength = reader.ReadUInt32();
+                    UInt32 serializedDataLength = reader.ReadUInt32();
+
+                    byte[] unityObjectRefs = reader.ReadBytes((int)unityObjectLength);
+                    byte[] serializedData = reader.ReadBytes((int)serializedDataLength);
+
+                    string unityObjectJson = Encoding.ASCII.GetString(unityObjectRefs);
+
+                    List<UnityEngine.Object> unityObjects = JsonUtility.FromJson<UnityObjectList>(unityObjectJson);
+                    Dictionary<string, object> dataDict = SerializationUtility.DeserializeValue<Dictionary<string, object>>(serializedData, DataFormat.Binary, unityObjects);
 
                     foreach (ContainerTableEntry entry in configuration.GetContainerEntries()) {
                         object data;
@@ -68,7 +84,7 @@ namespace SavePort.Saving {
                 return true;
             }
             catch (Exception e) {
-                Debug.LogError("Failed to load data! " + e.ToString());
+                Debug.LogError("Failed to load data! " + e.ToString() + e.StackTrace);
                 return false;
             }
         }
@@ -87,6 +103,19 @@ namespace SavePort.Saving {
 
         public static implicit operator UntypedDataContainer(ContainerTableEntry entry) {
             return entry.container;
+        }
+    }
+
+    [Serializable]
+    struct UnityObjectList {
+        public List<UnityEngine.Object> objects;
+
+        public UnityObjectList(List<UnityEngine.Object> objectList) {
+            this.objects = objectList;
+        }
+
+        public static implicit operator List<UnityEngine.Object>(UnityObjectList objectList) {
+            return objectList.objects;
         }
     }
 

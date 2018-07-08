@@ -16,7 +16,6 @@ namespace SavePort.Saving {
         internal void Initialize() {
             SaveManager.SetSaveConfiguration(this);
         }
-
     }
 
 }
