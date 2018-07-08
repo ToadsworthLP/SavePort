@@ -9,6 +9,12 @@ namespace SavePort.Saving {
 
     public static class SaveManager {
 
+        /// <summary>
+        /// This version number is added to the start of every SavePort save file.
+        /// Increase it if you change the file structure or format in an incompatible way!
+        /// </summary>
+        public const byte formatVersion = 1;
+
         private static SaveConfiguration configuration;
 
         internal static void SetSaveConfiguration(SaveConfiguration config) {
@@ -39,6 +45,9 @@ namespace SavePort.Saving {
                     string unityObjectJson = JsonUtility.ToJson(new UnityObjectList(unityObjects));
                     byte[] unityObjectRefs = Encoding.ASCII.GetBytes(unityObjectJson);
 
+                    writer.Write(Encoding.ASCII.GetBytes("SPDAT"));
+                    writer.Write(formatVersion);
+
                     writer.Write((UInt32)unityObjectRefs.Length);
                     writer.Write((UInt32)serializedData.Length);
                     writer.Write(unityObjectRefs);
@@ -52,10 +61,25 @@ namespace SavePort.Saving {
             }
         }
 
-        public static bool LoadContainers(string fileName) {
+        public static bool LoadContainers(string fileName, bool ignoreFormatVersion = false) {
             try {
                 using (BinaryReader reader = new BinaryReader(File.Open(Application.persistentDataPath + "/" + fileName, FileMode.OpenOrCreate))) {
                     if (reader.BaseStream.Length == 0) return false;
+
+                    string filePrefix = Encoding.ASCII.GetString(reader.ReadBytes(5));
+                    byte fileVersion = reader.ReadByte();
+
+                    if (!ignoreFormatVersion) {
+                        if (filePrefix != "SPDAT") {
+                            Debug.LogError("The file " + fileName + " is not a SavePort data file!");
+                            return false;
+                        } else if (fileVersion != formatVersion) {
+                            Debug.LogError("The file " + fileName + " uses SPDAT format version " + fileVersion + ", but the current one is " + formatVersion + "! It seems like the file format has been updated in an incompatible way since this file was created!");
+                            //You could put save file updating code here - if you do, return whether the update was successful instead of 'false'
+                            //The recommended way to do this is to use your own method to make your own version of LoadContainers which is compatible with the old version.
+                            return false;
+                        }
+                    }
 
                     UInt32 unityObjectLength = reader.ReadUInt32();
                     UInt32 serializedDataLength = reader.ReadUInt32();

@@ -1213,7 +1213,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 8e14a700f242b5e49855ef8de88188e5, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  fileName: save.dat
+  fileName: save.spdat
 --- !u!1 &1676222786
 GameObject:
   m_ObjectHideFlags: 0
