@@ -7,7 +7,7 @@ namespace SavePort.Saving {
     public class SaveConfiguration : ScriptableObject {
 
         [SerializeField]
-        private List<ContainerTableEntry> containerEntries = new List<ContainerTableEntry>();
+        private List<ContainerTableEntry> containerEntries;
 
         public List<ContainerTableEntry> GetContainerEntries() {
             return containerEntries;

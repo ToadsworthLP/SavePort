@@ -3,7 +3,7 @@
 --- !u!114 &11400000
 MonoBehaviour:
   m_ObjectHideFlags: 0
-  m_PrefabParentObject: {fileID: 0}
+  m_CorrespondingSourceObject: {fileID: 0}
   m_PrefabInternal: {fileID: 0}
   m_GameObject: {fileID: 0}
   m_Enabled: 1
@@ -11,7 +11,19 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 2b99afeeca51db949b015de3e0562ea7, type: 3}
   m_Name: HP
   m_EditorClassIdentifier: 
-  serializedValue: 100
+  serializationData:
+    SerializedFormat: 2
+    SerializedBytes: 
+    ReferencedUnityObjects: []
+    SerializedBytesString: 
+    Prefab: {fileID: 0}
+    PrefabModificationsReferencedUnityObjects: []
+    PrefabModifications: []
+    SerializationNodes:
+    - Name: serializedValue
+      Entry: 4
+      Data: 78.31
+  editorValue: 78.31
   validateInput: 1
   minValue:
     localMode: 1

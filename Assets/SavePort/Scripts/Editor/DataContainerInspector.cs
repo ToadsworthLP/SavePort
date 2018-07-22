@@ -19,7 +19,13 @@ public class DataContainerInspector : Editor {
 
         GUILayout.BeginHorizontal();
         EditorGUILayout.PrefixLabel("Runtime Value");
-        EditorGUILayout.SelectableLabel(container.UntypedValue.ToString());
+
+        if(container.UntypedValue == null) {
+            EditorGUILayout.SelectableLabel("null");
+        } else {
+            EditorGUILayout.SelectableLabel(container.UntypedValue.ToString());
+        }
+
         GUILayout.EndHorizontal();
 
         GUILayout.BeginHorizontal();
