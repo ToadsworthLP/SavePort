@@ -14,7 +14,5 @@ MonoBehaviour:
   containerEntries:
   - ID: HP
     container: {fileID: 11400000, guid: 592fdc63f05bb9f439d104997560b800, type: 2}
-  - ID: Test
-    container: {fileID: 11400000, guid: b4c3fc3119f7d7f48bafe469c80205d6, type: 2}
   - ID: DateTimeTest
     container: {fileID: 11400000, guid: 1efc0d2c6a421c4499ee3293ab0bfefb, type: 2}

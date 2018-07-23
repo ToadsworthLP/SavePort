@@ -1,4 +1,4 @@
-﻿using OdinSerializer;
+﻿using SavePort.Internal.OdinSerializer;
 using System;
 using System.Collections.Generic;
 using System.IO;

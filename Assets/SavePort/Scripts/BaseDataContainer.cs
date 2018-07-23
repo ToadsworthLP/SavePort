@@ -1,4 +1,4 @@
-﻿using OdinSerializer;
+﻿using SavePort.Internal.OdinSerializer;
 using System;
 #if UNITY_EDITOR
 using UnityEditor;
@@ -29,11 +29,24 @@ namespace SavePort {
             OnValueUpdated.RemoveAllListeners();
         }
 
-        public void ForceUpdate() {
+        public virtual void ForceUpdate() {
             if (OnValueUpdated != null) {
                 OnValueUpdated.Invoke();
             }
         }
+
+#if UNITY_EDITOR
+        protected virtual bool HasCustomInspector() { return false; }
+
+        /// <summary>
+        /// Implement this method to draw a custom inspector for the type of the container.
+        /// Everything allowed inside a normal custom inspector is allowed here too.
+        /// When handling a type which is normally not serializable by Unity, don't forget to set the serializedValue of the container manually and mark this container as dirty.
+        /// It is recommended to mark the implementation of this method as Editor-only using #if UNITY_EDITOR and #endif around your implementation of this method.
+        /// </summary>
+        /// <returns>Whether to draw the default inspector for this container.</returns>
+        protected virtual void OnContainerInspectorGUI() { }
+#endif
 
     }
 
@@ -43,8 +56,8 @@ namespace SavePort {
 #if UNITY_EDITOR
         //This is displayed in the inspector to allow editing the stored data if DataType has an associated PropertyDrawer.
         //If not, it's hidden. When modified, it's value it passed to serializedValue, where it's serialized by Odin.
-        [SerializeField]
-        private DataType editorValue;
+        [SerializeField, OdinNonSerialize, Tooltip("The actual value saved to the container asset.")]
+        protected DataType editorValue;
 #endif
 
         [OdinSerialize]
@@ -76,7 +89,7 @@ namespace SavePort {
 #if UNITY_EDITOR
         private DataType previousValue; //DON'T USE OUTSIDE THIS EDITOR ONLY PART
 
-        private void OnValidate() {
+        protected void OnValidate() {
             if (!editorValue.Equals(previousValue)) {
                 if (validateInput) {
                     editorValue = Validate(editorValue);
@@ -91,6 +104,10 @@ namespace SavePort {
             }
 
             previousValue = serializedValue;
+        }
+
+        protected override void OnContainerInspectorGUI() {
+            editorValue = serializedValue;
         }
 #endif
 
